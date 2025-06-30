@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Merge PDF Files | PDFPro Tools</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Header (same as index.html) -->
+    <header>
+        <div class="container">
+            <nav>
+                <a href="index.html" class="logo">PDF<span>Pro</span> Tools</a>
+                
+                <div class="nav-links">
+                    <a href="tools.html">Tools</a>
+                    <a href="about.html">About</a>
+                    <a href="pricing.html">Pricing</a>
+                    <a href="contact.html">Contact</a>
+                </div>
+                
+                <div class="nav-buttons">
+                    <a href="#" class="btn btn-outline">Login</a>
+                    <a href="#" class="btn btn-primary">Sign Up</a>
+                </div>
+                
+                <div class="mobile-menu-btn">
+                    <i class="fas fa-bars"></i>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Tool Demo Section -->
+    <section class="tool-demo">
+        <div class="container">
+            <div class="breadcrumb">
+                <a href="tools.html">All Tools</a> &gt; <span>Merge PDF</span>
+            </div>
+            
+            <h1>Merge PDF Files</h1>
+            <p class="subtitle">Combine multiple PDF files into a single document in seconds</p>
+            
+            <div class="upload-container">
+                <div class="upload-area" id="uploadArea">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <h3>Upload your PDF files</h3>
+                    <p>Drag and drop files here or click to browse</p>
+                    <input type="file" id="file-input" class="file-input" accept=".pdf" multiple>
+                </div>
+                
+                <div class="file-list" id="file-list">
+                    <!-- Files will appear here -->
+                </div>
+                
+                <div class="tool-options">
+                    <h3>Merge Options</h3>
+                    <div class="option-group">
+                        <label>
+                            <input type="radio" name="merge-order" checked> Merge in upload order
+                        </label>
+                        <label>
+                            <input type="radio" name="merge-order"> Sort alphabetically
+                        </label>
+                    </div>
+                </div>
+                
+                <button class="btn btn-primary process-btn" id="processBtn">Merge PDFs</button>
+                
+                <div class="download-section" id="download-section">
+                    <h3>Your merged PDF is ready!</h3>
+                    <p>Click the button below to download your merged file.</p>
+                    <button class="btn btn-primary">
+                        <i class="fas fa-download"></i> Download Merged PDF
+                    </button>
+                </div>
+            </div>
+            
+            <div class="tool-info">
+                <h2>How to Merge PDF Files</h2>
+                <ol>
+                    <li>Click "Upload PDF Files" or drag and drop files into the upload area</li>
+                    <li>Arrange files in your preferred order (drag to reorder)</li>
+                    <li>Click "Merge PDFs" button</li>
+                    <li>Download your merged PDF file</li>
+                </ol>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer (same as index.html) -->
+    <footer>
+        <!-- Same footer content as index.html -->
+    </footer>
+
+    <script src="js/script.js"></script>
+    <script>
+        // Tool-specific JavaScript
+        document.addEventListener('DOMContentLoaded', function() {
+            const uploadArea = document.getElementById('uploadArea');
+            const fileInput = document.getElementById('file-input');
+            const fileList = document.getElementById('file-list');
+            const processBtn = document.getElementById('processBtn');
+            const downloadSection = document.getElementById('download-section');
+            
+            // File upload functionality
+            uploadArea.addEventListener('click', function() {
+                fileInput.click();
+            });
+            
+            fileInput.addEventListener('change', function(e) {
+                updateFileList(e.target.files);
+            });
+            
+            // Drag and drop functionality
+            uploadArea.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                uploadArea.classList.add('dragover');
+            });
+            
+            uploadArea.addEventListener('dragleave', function() {
+                uploadArea.classList.remove('dragover');
+            });
+            
+            uploadArea.addEventListener('drop', function(e) {
+                e.preventDefault();
+                uploadArea.classList.remove('dragover');
+                if (e.dataTransfer.files.length) {
+                    fileInput.files = e.dataTransfer.files;
+                    updateFileList(e.dataTransfer.files);
+                }
+            });
+            
+            // Process button click
+            processBtn.addEventListener('click', function() {
+                if (fileList.children.length === 0) {
+                    alert('Please upload at least one PDF file');
+                    return;
+                }
+                
+                processBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Merging...';
+                processBtn.disabled = true;
+                
+                // Simulate processing delay
+                setTimeout(function() {
+                    processBtn.style.display = 'none';
+                    downloadSection.style.display = 'block';
+                }, 2000);
+            });
+            
+            function updateFileList(files) {
+                fileList.innerHTML = '';
+                
+                if (files.length === 0) return;
+                
+                for (let i = 0; i < files.length; i++) {
+                    const file = files[i];
+                    if (file.type !== 'application/pdf') continue;
+                    
+                    const fileItem = document.createElement('div');
+                    fileItem.className = 'file-item';
+                    fileItem.draggable = true;
+                    fileItem.innerHTML = `
+                        <div class="file-info">
+                            <i class="fas fa-file-pdf file-icon"></i>
+                            <span>${file.name} (${formatFileSize(file.size)})</span>
+                        </div>
+                        <div class="file-actions">
+                            <button class="file-action-btn" onclick="removeFile(this)"><i class="fas fa-trash"></i></button>
+                            <button class="file-action-btn"><i class="fas fa-grip-vertical"></i></button>
+                        </div>
+                    `;
+                    
+                    fileList.appendChild(fileItem);
+                }
+            }
+            
+            function formatFileSize(bytes) {
+                if (bytes === 0) return '0 Bytes';
+                const k = 1024;
+                const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+            }
+            
+            window.removeFile = function(button) {
+                const fileItem = button.closest('.file-item');
+                fileItem.remove();
+            };
+        });
+    </script>
+</body>
+</html>
